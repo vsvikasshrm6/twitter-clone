@@ -1,4 +1,5 @@
 import { User } from "../models/user.model";
+import { bcrypt } from 'bcryptjs';
 
 export const getUserProfile = async (req, res)=>{
   const userName = req.body;
@@ -32,5 +33,36 @@ export const followUnfollow = async (req, res)=>{
 
 export const getUserSuggestion = ()=>{
 
+}
+export const updateProfile = (req, res)=>{
+  const {userName, fullName, currentPassword,newPassword, link, bio, profileImage, coverImage} = req.body;
+  try {
+    const user = User.findById(req.user._id)
+    if(!user){
+      return res.status(400).json({message : "User Not found"})
+    }
+    if((currentPassword && !newPassword) || (!currentPassword && newPassword) ){
+      return res.status(404).json({message : "Provide new and current pasword"})
+    }
+    const isOldPasswordCorrect = bcrypt.compare(currentPassword, user.password);
+    if(isOldPasswordCorrect){
+      const salt = bcrypt.genSalt(10);
+      const hashedNewPassword = bcrypt.hash(newPassword, salt);
+      return res.status(201).json({message : "Password updated successfully"})
+    }
+    if(userName){
+      user.userName = userName;
+    }
+    if(link){
+      user.link = link;
+    }
+    if(bio){
+      user.bio = bio;
+    }
+    //cloudinary setup
+    
+  } catch (error) {
+    
+  }
 }
 
