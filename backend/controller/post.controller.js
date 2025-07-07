@@ -2,6 +2,7 @@ import { Post } from "../models/post.model";
 import { User } from "../models/user.model";
 import {v2 as cloudinary} from "cloudinary"
 import { Post } from './../models/post.model';
+
 export const getAllPost = ()=>{
 
 }
@@ -71,10 +72,76 @@ export const likeUnlikePost = async (req, res)=>{
     console.log("Error in like unike Post" + error)
   }
 }
-export const commentPost = ()=>{
-  
+export const commentPost = async (req, res)=>{
+  const {id} = req.params;
+  const {text} = req.body;
+  try {
+    const post = Post.findById(id);
+    if(!post){
+      return res.status(400).json({message : "Invalid Post"})
+    }
+    const updatedPost = await Post.findByIdAndUpdate(id, {
+      comments : {$push : {text}}
+    });
+    res.status(200).json(updatedPost)
+  } catch (error) {
+    console.log("Error in commenting post" + error)
+  }  
 }
-export const getPostLikedByUser = ()=>{
-  
-}
+export const getPostLikedByUser = async (req, res)=>{
+  const id = req.user._id;
+  try {
+    // const user = User.findById(id).populate({
+    //   path : "post"
+    // })
+    const post = Post.find({user : {id}}).populate({
+      path : "User",
+      select : "-password"
+    })
+    res.status(200).json(post)
 
+  } catch (error) {
+    console.log("Error in geting Post Liked By User" + error)
+  }  
+}
+export const getFollowingPost = async(req,res)=>{
+  const userId = req.user._id;
+  try {
+    const user = await User.findById(userId);
+    if(!user){
+      return res.status(400).json({message : "Invalid request"})
+    }
+    const following = user.following;
+    const followingPost = await Post.find({user : {$in : {following}}}).sort(-1, createdAt).populate(
+      {
+        path: "user",
+        select : "-password"
+      }
+    ).populate({
+      path : "comments.user",
+      select : "-password"
+    })
+    res.status(200).json(followingPost)
+  } catch (error) {
+    console.log("Error in getting following post" +  error);
+  }
+}
+export const getUserPost = async (req, res) =>{
+  const username = req.params;
+  try {
+    const user = await User.find({username : username});
+    if(!user){
+      return res.status(400).json({message : "Invalid User Request"})
+    }
+    const userPost = await Post.find({user : user._id}).sort("createdAt", -1).populate({
+      path : "user",
+      select: "-password"
+    }).populate({
+      path : "user.comments",
+      select : "-password"
+    })
+    res.status(200).json(userPost);
+  } catch (error) {
+    console.log("Error in getting User Post" +  error)
+  }
+}

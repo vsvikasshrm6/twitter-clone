@@ -9,6 +9,8 @@ postRoutes.delete("/delete", deletePost);
 postRoutes.post('/like/:id', likeUnlikePost);
 postRoutes.post('/comment', commentPost);
 postRoutes.get("/:id", getPostLikedByUser);
+postRoutes.get('/following', getFollowingPost);
+postRoutes.get('/user/:username', getUserPost);
 
 export {postRoutes};
 
