@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { MdOutlineMail} from "react-icons/md";
 import { FaUserAlt } from "react-icons/fa";
 import { TbLockPassword } from "react-icons/tb";
@@ -6,7 +6,36 @@ import { IoPencil } from "react-icons/io5";
 import { Link } from "react-router-dom";
 
 import XSvg from './../components/svgs/Xsvg';
+import { useMutation } from "@tanstack/react-query";
+import toast from './../../node_modules/react-hot-toast/src/index';
+
 function SignupPage() {
+
+  const {mutate: signupMutate, isPending, isError, error} = useMutation({
+    mutationFn: async({email, password, fullName, userName})=>{
+      try {
+        const res = await fetch("/api/signup", {
+        method : "Post",
+        headers : {
+          contentType : "application/json"
+        },
+        body : JSON.stringify({email, password, fullName, userName})
+      })
+      if(!res.ok){
+        throw new Error(res.data);
+      }
+      if(!res.data){
+        console.log(res.data)
+      }
+      if(res.data){
+        toast.success("Sign up successfull")
+      }
+      } catch (error) {
+        toast.error(error)  
+      }
+      
+    }
+  });
   const [form , setForm] = useState({
     email : "",
     password : "",
@@ -15,7 +44,7 @@ function SignupPage() {
   })
   const handleSubmit = (e)=>{
     e.preventDefault();
-    console.log(form);
+    signupMutate(form);
   }
   return (
     <div className="grid lg:grid-cols-2">

@@ -8,8 +8,11 @@ import RightPanel from './components/common/RightPanel'
 import NotificationPage from './Pages/NotificationPage'
 import ProfilePage from './Pages/ProfilePage'
 
+import { Toaster } from "react-hot-toast";
+
 function App() {
   return (<div className='flex' data-theme = "black">
+    <Toaster/>
     <SideBar></SideBar>
     <Routes>
     <Route path='/' element= {<HomePage></HomePage>}></Route>
@@ -19,6 +22,7 @@ function App() {
     <Route path='/profile' element={<ProfilePage></ProfilePage>}></Route>
   </Routes>
   <RightPanel></RightPanel>
+    
   </div>)
 }
 
