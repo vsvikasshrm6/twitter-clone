@@ -6,34 +6,38 @@ import { IoPencil } from "react-icons/io5";
 import { Link } from "react-router-dom";
 
 import XSvg from './../components/svgs/Xsvg';
-import { useMutation } from "@tanstack/react-query";
-import toast from './../../node_modules/react-hot-toast/src/index';
+import {  useMutation, useQueryClient } from "@tanstack/react-query";
+import {toast} from "react-hot-toast";
 
 function SignupPage() {
+
+  const queryClient =  useQueryClient()
 
   const {mutate: signupMutate, isPending, isError, error} = useMutation({
     mutationFn: async({email, password, fullName, userName})=>{
       try {
         const res = await fetch("/api/signup", {
-        method : "Post",
+        method : "POST",
         headers : {
-          contentType : "application/json"
+          "Content-Type" : "application/json"
         },
         body : JSON.stringify({email, password, fullName, userName})
       })
+      const data = await res.json()
       if(!res.ok){
         throw new Error(res.data);
       }
-      if(!res.data){
-        console.log(res.data)
-      }
-      if(res.data){
-        toast.success("Sign up successfull")
-      }
+      console.log(data);
+      return data;
       } catch (error) {
-        toast.error(error)  
+        toast.error(error.message)
+        throw new Error(error.message)  
       }
       
+    },
+    onSuccess:()=>{
+      toast.success("Sign up successfull")
+      queryClient.invalidateQueries({queryKey : ["authUser"]});
     }
   });
   const [form , setForm] = useState({
@@ -71,7 +75,8 @@ function SignupPage() {
           <TbLockPassword />
           <input type="text" className="grow" placeholder="Password" onChange={(e)=>setForm({...form ,password : e.target.value})} />
         </label>
-        <button className="btn w-full" type="submit">Signup</button>
+        <button className="btn w-full" type="submit">{isPending ? "...Loading" : "Sign up"}</button>
+         {isError && <p className="text-red-500">{error.message}</p>}
 
         <p>Already have an account?</p>
         <Link to={"/login"} className>
