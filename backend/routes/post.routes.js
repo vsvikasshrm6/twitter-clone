@@ -5,7 +5,7 @@ const postRoutes = express.Router();
 
 postRoutes.get("/post", getAllPost);
 postRoutes.post("/create", createPost);
-postRoutes.delete("/delete", deletePost);
+postRoutes.delete("/delete/:id", deletePost);
 postRoutes.post('/like/:id', likeUnlikePost);
 postRoutes.post('/comment', commentPost);
 postRoutes.get("/:id", getPostLikedByUser);

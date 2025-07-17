@@ -1,44 +1,3 @@
-// import { FaRegComment } from "react-icons/fa";
-// import { BiRepost } from "react-icons/bi";
-// import { FaRegHeart } from "react-icons/fa";
-// import { FaRegBookmark } from "react-icons/fa6";
-// import { FaTrash } from "react-icons/fa";
-// import { useState } from "react";
-// import { Link } from "react-router-dom";
-
-// const PostComponent = ({post}) => {
-//   return (
-//     <div className='flex w-full'>
-//         <img src={post.user.profileImg} className='size-10 rounded-full object-cover' />
-//         <div className='flex flex-col flex-1 space-y-2'>
-//             <div className='flex'>
-//                 <h1>{post.user.fullName}</h1>
-//                 <p>{post.user.username}</p>
-//                 <p>Created At</p>
-//             </div>
-//             <p>{post.text}</p>
-//             {post.img && (<img src={post.img} className='w-full h-48 object-contain border border-slate-700 rounded-md'></img>)}
-//             <div className='flex justify-evenly'>
-//                 <div>
-//                     <FaRegComment></FaRegComment>
-//                 </div>
-//                 <div>
-//                     <BiRepost></BiRepost>
-//                 </div>
-//                 <div>
-//                     <FaRegHeart></FaRegHeart>
-//                 </div>
-//                 <div>
-//                     <FaRegBookmark></FaRegBookmark>
-//                 </div>
-//             </div>
-
-//         </div>
-//         </div>
-//   )
-// }
-
-// export default PostComponent
 import { FaRegComment } from "react-icons/fa";
 import { BiRepost } from "react-icons/bi";
 import { FaRegHeart } from "react-icons/fa";
@@ -46,19 +5,46 @@ import { FaRegBookmark } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
+import { toast } from 'react-hot-toast';
 
 const PostComponent = ({ post }) => {
+	const queryclient = new QueryClient();
+	const {data:authUser} = useQuery({queryKey: ["authUser"]});
+	const {mutate:deletePost, error} = useMutation({
+		mutationFn : async ()=>{
+			try {
+				const res = await fetch("/api/delete" + post.id.toString(), {
+					method : "DELETE"
+				});
+				const data = await res.json();
+				if(!res.ok){
+					throw new Error(error)
+				}
+				return data;
+			} catch (error) {
+				throw new Error(error)
+			}
+		},
+		onSuccess :()=>{
+			toast.success("Post deleted successfully")
+			queryclient.invalidateQueries({queryKey : ["Post"]})
+		}
+	})
 	const [comment, setComment] = useState("");
 	const postOwner = post.user;
 	const isLiked = false;
 
-	const isMyPost = true;
+	const isMyPost = authUser.id===post.user._id
 
 	const formattedDate = "1h";
 
 	const isCommenting = false;
 
-	const handleDeletePost = () => {};
+	const handleDeletePost = () => {
+      deletePost();
+	};
 
 	const handlePostComment = (e) => {
 		e.preventDefault();

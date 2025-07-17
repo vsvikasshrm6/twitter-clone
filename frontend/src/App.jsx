@@ -23,10 +23,11 @@ function App() {
           "Content-Type" : "application/json"
         }
       })
+      const data = await res.json();
       if(!res.ok){
         throw new Error(error.message);
       }  
-      return res.formData;
+      return data;
       } catch (error) {
         throw new Error(error.message);
       }
