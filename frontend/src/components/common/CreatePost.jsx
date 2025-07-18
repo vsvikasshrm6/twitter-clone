@@ -2,23 +2,51 @@ import { CiImageOn } from "react-icons/ci";
 import { BsEmojiSmileFill } from "react-icons/bs";
 import { useRef, useState } from "react";
 import { IoCloseSharp } from "react-icons/io5";
+import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 const CreatePost = () => {
     const [text, setText] = useState("");
     const [img, setImg] = useState(null);
+    const queryClient = new QueryClient();
+    const {data : authUser}  = useQuery({queryKey : ["authUser"]})
+
+    const {mutate : createPost, isError, error, isPending} = useMutation({
+        mutationFn: async ()=>{
+            try {
+                const res = await fetch("/api/post/create", {
+                method : "POST",
+                headers : {
+                    "Content-Type" : "application/json"
+                },
+                body : JSON.stringify({text, img})
+            })
+            const data = res.json()
+            if(!res.ok){
+                throw new Error(error)
+            }
+            return data;
+            } catch (error) {
+                throw new Error(error);
+            }
+            
+        },
+        onSuccess : ()=>{
+            queryClient.invalidateQueries({queryKey : ["Post"]})
+            toast.success("POST created successfully")
+        },
+        
+    })
 
     const imgRef = useRef(null);
+   
 
-    const isPending = false;
-    const isError = false;
 
-    const data = {
-        profileImg: "/avatars/boy1.png",
-    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        alert("Post created successfully");
+        createPost();
+        
     };
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
@@ -26,7 +54,7 @@ const CreatePost = () => {
             const fileReader = new FileReader();
             fileReader.readAsDataURL(file);
             fileReader.onload = () => {
-                setImage(fileReader.result)
+                setImg(fileReader.result)
             }
         }
 
@@ -36,12 +64,12 @@ const CreatePost = () => {
         <div className='flex items-start border-b border-gray-700'>
             <div className='avator'>
                 <div className='w-8 rounded-full'>
-                    <img src={data.profileImg || "/avatar-placeholder.png"} />
+                    <img src={authUser.profileImg || "/avatar-placeholder.png"} />
                 </div>
             </div>
             <form className='flex flex-col gap-2 w-full' onSubmit={handleSubmit}>
                 <textarea value={text}
-                    onChange={() => setText(e.target.value)}
+                    onChange={(e) => setText(e.target.value)}
                     placeholder='What is happening'
                     className='textarea w-full'
 
@@ -72,7 +100,7 @@ const CreatePost = () => {
                         {isPending ? "Posting..." : "Post"}
                     </button>
                 </div>
-                {isError && <div className='text-red-500'>Something went wrong</div>}
+                {isError && <div className='text-red-500'>{error || "something went wrong"}</div>}
             </form>
 
 
