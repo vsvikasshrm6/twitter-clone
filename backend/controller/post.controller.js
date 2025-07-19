@@ -3,6 +3,7 @@ import { User } from "../models/user.model";
 import {v2 as cloudinary} from "cloudinary"
 import { Post } from './../models/post.model';
 
+
 export const getAllPost = ()=>{
 
 }

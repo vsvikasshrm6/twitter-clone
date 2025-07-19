@@ -7,11 +7,11 @@ export const login = async (req, res)=>{
    try {
       const user = await User.find({email : email});
    if(!user){
-      return res.staus(404).json({messsage : "User Not found"});
+      return res.staus(404).json({error : "User Not found"});
    }
-   const checkPassword = bcrypt.compare(password, user.password);
+   const checkPassword = await bcrypt.compare(password, user.password);
    if(!checkPassword){
-      return res.status(400).json({message : "Invalid Password"});
+      return res.status(400).json({error : "Invalid Password"});
    }
    await generateAndSetToken(user._id, res);
    res.status(201).json({message : "Login successfull"});
@@ -21,23 +21,33 @@ export const login = async (req, res)=>{
 }
 
 export const logout = (req, res)=>{
-   res.cookie("jwt", "");
+   try {
+      res.cookie("jwt", "", {maxAge : 0});
    res.status(201).json({message : "Logout successfully"});
+   } catch (error) {
+      console.log(error)
+      res.status(500).json({error : "Internal serve"})
+   }
+   
 }
 
 export const signup = async (req, res)=>{
    const {fullName, email, password, userName} = req.body;
    try {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if (!emailRegex.test(email)) {
+			return res.status(400).json({ error: "Invalid email format" });
+		}
       //check email is valid or not
       const user = await User.find({email : email})
       if(user){
-         res.status(400).json({message : "User alredy exist"})
+         return es.status(400).json({error : "User alredy exist"})
       }
       if(user.userName ===userName){
-         res.status(400).json({message : "User name not available"})
+         return res.status(400).json({error : "User name not available"})
       }
       if(password.length <6){
-         res.status(400).json({message : "Password length less than 6"})
+         return res.status(400).json({error : "Password length less than 6"})
       }
       const salt = await bcrypt.genSalt(10);
       const hashPassword = bcrypt.hash(password, salt)
@@ -63,6 +73,7 @@ export const signup = async (req, res)=>{
 }
 export const check = async(req, res)=>{
    try {
+      // here no need to again fetch the User as it is already fetched in protectedRoute and it is free from passowrd
       return res.staus(200).json(req.user)
    } catch (error) {
       console.log("Error in checking auth" + error);

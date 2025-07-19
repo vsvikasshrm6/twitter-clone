@@ -12,9 +12,10 @@ export const getNotification = async ()=>{
         const notification = await Notification.findMany({to : user._id}).populate(
             {
                 path : "from",
-                select : "-password"
+                select : "userName profileImg"
             }
         );
+        await Notification.updateMany({to : userId}, {read : true});
         res.status(200).json(notification)
     } catch (error) {
         console.log("Error in getting notification" + error)
@@ -22,10 +23,10 @@ export const getNotification = async ()=>{
 }
 
 export const deleteNotification = async (req, res)=>{
-    const {id} = req.pararms;
+    
     const userId = req.user._id;
     try {
-        const notification = await Notification.findById(id);
+        const notification = await Notification.find({to : userId});
         if(notification.to.toString()!==userId.toString()){
             res.status(403).json({message : "Unauthorised noftification delete request"});
         }
@@ -33,6 +34,7 @@ export const deleteNotification = async (req, res)=>{
         res.status(200).json({message : "Notification deleted successfully"});
     } catch (error) {
         console.log("Error in deleting notification" + error);
+        res.status(500).json({error : "Internal Server Error"});
     }
 
 }
