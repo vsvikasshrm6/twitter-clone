@@ -1,22 +1,21 @@
 import mongoose, { mongo } from "mongoose";
-import { Post } from "./post.model";
 const UserSchema = mongoose.Schema(
   {
     userName: {
       type: String,
-      require: true,
+      required: true,
     },
     fullName: {
       type: String,
-      require: true,
+      required: true,
     },
     email: {
       type: String,
-      require: true,
+      required: true,
     },
     password: {
       type: String,
-      require: true,
+      required: true,
       minlength: 6,
     },
     proflieImage: {
@@ -41,16 +40,17 @@ const UserSchema = mongoose.Schema(
     ],
     link: {
       type: String,
-      require: true,
+      required: true,
     },
     bio: {
       type: String,
-      require: true,
+      required: true,
     },
-    likes : [
+    likedPost : [
       {
         type : mongoose.Types.ObjectId,
-        ref : Post
+        ref : "Post",
+        default : []
       }
     ]
   },

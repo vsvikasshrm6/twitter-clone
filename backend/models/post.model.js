@@ -1,6 +1,6 @@
 
 import { mongoose } from 'mongoose';
-import { User } from './user.model';
+
 
 const postSchema = new mongoose.schema({
    user : {
@@ -15,14 +15,20 @@ const postSchema = new mongoose.schema({
    },
    likes : [
     {type : mongoose.Types.ObjectId,
-      ref : User
+      ref : "User"
     }
    ],
    comments : [
-    {type : mongoose.Types.ObjectId,
-      ref : User
-    },
-    {type : String,
+    {
+      text : {
+        type : String,
+        required : true
+      },
+      user : {
+        type : mongoose.Types.ObjectId,
+        ref : "User",
+        required : true
+      }
     }
    ]
 

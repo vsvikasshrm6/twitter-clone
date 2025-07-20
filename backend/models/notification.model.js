@@ -4,20 +4,23 @@ import mongoose from "mongoose";
 const notificationSchema = mongoose.Schema({
     to:{
         type : mongoose.Types.ObjectId,
-        require : true,
+        required : true,
         ref : "user"
     },
     from :{
         type : mongoose.Types.ObjectId,
-        require : true,
+        required : true,
         ref : "user"
     },
-    text : {
-        type : String
+    type : {
+        type : String,
+        required : true,
+        enum : ["follow", "like"]
     },
     read : {
         type : Boolean,
-        default : false
+        default : false,
+        required : true
     }
 }, {
     timeStamp : true
