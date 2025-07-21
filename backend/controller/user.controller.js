@@ -117,7 +117,7 @@ export const updateProfile = async (req, res) => {
     user.fullName = fullName || user.fullName;
     user.userName = userName || user.userName;
     user.link = link || user.link;
-    user.bio = fullName || user.bio;
+    user.bio = bio || user.bio;
     if (profileImage) {
       if (user.profileImage) {
         await cloudinary.uploader.destroy(
