@@ -1,6 +1,6 @@
-import { express } from 'express';
-import { getAllPost, createPost, deletePost, likeUnlikePost, commentPost, getPostLikedByUser, getFollowingPost, getUserPost } from '../controller/post.controller';
-import protectedRoute from "../middleware/protectedRoute.js"
+import  express  from 'express';
+import { getAllPost, createPost, deletePost, likeUnlikePost, commentPost, getPostLikedByUser, getFollowingPost, getUserPost } from '../controller/post.controller.js';
+import {protectedRoute} from "../middleware/protectedRoute.js"
 const postRoutes = express.Router();
 
 postRoutes.get("/all", protectedRoute,getAllPost);

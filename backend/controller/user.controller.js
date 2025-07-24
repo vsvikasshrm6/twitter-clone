@@ -1,6 +1,6 @@
-import { Notification } from "../models/notification.model";
-import { User } from "../models/user.model";
-import { bcrypt } from "bcryptjs";
+import { Notification } from "../models/notification.model.js";
+import { User } from "../models/user.model.js";
+import  bcrypt  from "bcryptjs";
 import { v2 as cloudinary } from "cloudinary";
 
 export const getUserProfile = async (req, res) => {

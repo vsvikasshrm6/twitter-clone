@@ -29,13 +29,13 @@ const UserSchema = mongoose.Schema(
     followers: [
       {
         type: mongoose.Types.ObjectId,
-        ref: user,
+        ref: "User",
       },
     ],
     following: [
       {
         type: mongoose.Types.ObjectId,
-        ref: User,
+        ref: "User",
       },
     ],
     link: {
@@ -57,4 +57,4 @@ const UserSchema = mongoose.Schema(
   { timeStamps: true }
 );
 
-export const User = mongoose.model(UserSchema, "User");
+export const User = mongoose.model("User", UserSchema );

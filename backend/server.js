@@ -1,7 +1,7 @@
 import express from "express"
 import dotenv from "dotenv"
 import { connectDb } from "./utils/db.js";
-import {userRoutes} from "./routes/auth.routes.js"
+import {userRouter} from "./routes/user.routes.js"
 import { authRoutes } from "./routes/auth.routes.js";
 import {postRoutes} from "./routes/post.routes.js"
 
@@ -12,7 +12,7 @@ const app = express();
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
-app.use("/api/user", userRoutes);
+app.use("/api/user", userRouter);
 app.use("/api/post", postRoutes);
 
 

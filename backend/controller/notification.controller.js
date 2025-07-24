@@ -1,5 +1,5 @@
-import { Notification } from "../models/notification.model";
-import { User } from "../models/user.model";
+import { Notification } from "../models/notification.model.js";
+import { User } from "../models/user.model.js";
 
 export const getNotification = async ()=>{
     const userId = req.user._id;
