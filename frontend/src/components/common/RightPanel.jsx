@@ -22,7 +22,7 @@ const RightPanel = () => {
 			}
 		},
 	})
-	if(suggestedUser.length==0){
+	if(suggestedUser?.length()==0){
 		return <div className='md:w-64 w-0'></div>
 	}
 

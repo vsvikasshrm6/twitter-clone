@@ -39,11 +39,13 @@ export const signup = async (req, res)=>{
 			return res.status(400).json({ error: "Invalid email format" });
 		}
       //check email is valid or not
-      const user = await User.find({email : email})
+      const user = await User.findOne({email : email})
+      console.log(user)
       if(user){
-         return es.status(400).json({error : "User alredy exist"})
+         return res.status(400).json({error : "User alredy exist"})
       }
-      if(user.userName ===userName){
+      const userNameCheck = await User.findOne({userName : userName});
+      if(userNameCheck){
          return res.status(400).json({error : "User name not available"})
       }
       if(password.length <6){

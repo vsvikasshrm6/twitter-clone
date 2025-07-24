@@ -16,7 +16,7 @@ function SignupPage() {
   const {mutate: signupMutate, isPending, isError, error} = useMutation({
     mutationFn: async({email, password, fullName, userName})=>{
       try {
-        const res = await fetch("/api/signup", {
+        const res = await fetch("/api/auth/signup", {
         method : "POST",
         headers : {
           "Content-Type" : "application/json"
@@ -24,8 +24,9 @@ function SignupPage() {
         body : JSON.stringify({email, password, fullName, userName})
       })
       const data = await res.json()
+      console.log(data);
       if(!res.ok){
-        throw new Error(res.data);
+        throw new Error(data.error);
       }
       console.log(data);
       return data;

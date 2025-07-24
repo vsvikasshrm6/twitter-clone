@@ -41,7 +41,7 @@ function App() {
    </div>}
   return (<div className='flex' data-theme = "black">
     <Toaster/>
-    <SideBar></SideBar>
+    {authUser && <SideBar></SideBar>}
     <Routes>
     <Route path='/' element= { !authUser ? <Navigate to="/login"></Navigate> : <HomePage></HomePage>}></Route>
     <Route path='/login' element= {authUser ? <Navigate to="/"></Navigate> :<LoginPage></LoginPage>}></Route>
@@ -49,7 +49,8 @@ function App() {
     <Route path='/notification' element= {!authUser ? <Navigate to="/login"></Navigate> :<NotificationPage></NotificationPage>}></Route>
     <Route path='/profile' element={!authUser ? <Navigate to="/login"></Navigate> : <ProfilePage></ProfilePage>}></Route>
   </Routes>
-  <RightPanel></RightPanel>
+  {authUser && <RightPanel></RightPanel>}
+  
     
   </div>)
 }
