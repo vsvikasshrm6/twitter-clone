@@ -32,6 +32,23 @@ const PostComponent = ({ post }) => {
 			queryclient.invalidateQueries({queryKey : ["Post"]})
 		}
 	})
+	const {mutate: likeUnlikePost, error: likeUnlikeError} = useMutation({
+		mutationFn : async (id)=>{
+			try {
+				const res = await fetch(`/api/post/like/${id}`)
+				if(!res.ok){
+					throw new Error(likeUnlikeError);
+				}
+				const data = await res.json();
+				if(data.error){
+					throw new Error(data.error);
+				}
+				return data;
+			} catch (error) {
+				throw new Error(likeUnlikeError);
+			}
+		}
+	})
 	const [comment, setComment] = useState("");
 	const postOwner = post.user;
 	const isLiked = false;
@@ -50,7 +67,9 @@ const PostComponent = ({ post }) => {
 		e.preventDefault();
 	};
 
-	const handleLikePost = () => {};
+	const handleLikePost = (id) => {
+		likeUnlikePost(id);
+	};
 
 	return (
 		<>
@@ -155,7 +174,7 @@ const PostComponent = ({ post }) => {
 								<BiRepost className='w-6 h-6  text-slate-500 group-hover:text-green-500' />
 								<span className='text-sm text-slate-500 group-hover:text-green-500'>0</span>
 							</div>
-							<div className='flex gap-1 items-center group cursor-pointer' onClick={handleLikePost}>
+							<div className='flex gap-1 items-center group cursor-pointer' onClick={()=>handleLikePost(post._id)}>
 								{!isLiked && (
 									<FaRegHeart className='w-4 h-4 cursor-pointer text-slate-500 group-hover:text-pink-500' />
 								)}
