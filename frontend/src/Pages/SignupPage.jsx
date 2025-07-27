@@ -24,11 +24,11 @@ function SignupPage() {
         body : JSON.stringify({email, password, fullName, userName})
       })
       const data = await res.json()
-      console.log(data);
+ 
       if(!res.ok){
         throw new Error(data.error);
       }
-      console.log(data);
+     
       return data;
       } catch (error) {
         toast.error(error.message)

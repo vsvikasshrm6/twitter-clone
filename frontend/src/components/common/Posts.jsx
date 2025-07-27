@@ -1,17 +1,19 @@
 
 import  PostSkeleton from "../skeletons/PostSkeleton"
 import PostComponent from "../common/PostComponent"
-import {useQuery } from "@tanstack/react-query";
+import {useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 
 const Posts = ({feedType}) => {
 	// const isLoading = false;
-	const feedUrl = feedType==="following" ? "/api/following" : "/api/post";
+	const feedUrl = feedType==="following" ? "/api/post/following" : "/api/post/all";
+	
   
 	const {data: POSTS, isLoading, error, refetch, isRefetching} = useQuery({
 		queryKey : ["Post"],
 		queryFn : async()=>{
 			try {
+				// if there is some error in getting post it will show previous post
 				const res = await fetch(feedUrl, {
 					method : "GET"
 				})
@@ -27,6 +29,7 @@ const Posts = ({feedType}) => {
 				throw new Error(error);
 			}
 		}
+		
 	});
 	useEffect(()=>{
   refetch();

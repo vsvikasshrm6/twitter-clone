@@ -4,7 +4,7 @@ import {v2 as cloudinary} from "cloudinary"
 
 
 
-export const getAllPost = async ()=>{
+export const getAllPost = async (req, res)=>{
   try {
     const post = await Post.find()
     .sort({created: -1})
@@ -13,7 +13,7 @@ export const getAllPost = async ()=>{
       select : "-password"
     }).
     populate({
-      path : "comment.user",
+      path : "comments.user",
       select : "-password"
     })
     if(post.length===0){
@@ -37,9 +37,10 @@ export const createPost = async (req, res)=>{
     if(!image && !text){
       return res.status(400).json({message : "Please provide either image or text"})
     }
+    var postedImageUrl= ""
     if(image){
       const postedImage = await cloudinary.uploader.upload(image);
-    const postedImageUrl = postedImage.secureUrl;
+     postedImageUrl = postedImage.secureUrl;
     }
     
 
@@ -168,7 +169,7 @@ export const getFollowingPost = async(req,res)=>{
       return res.status(400).json({message : "Invalid request"})
     }
     const following = user.following;
-    const followingPost = await Post.find({user : {$in : {following}}}).sort({createdAt : -1}).populate(
+    const followingPost = await Post.find({user : { $in : following}}).sort({createdAt : -1}).populate(
       {
         path: "user",
         select : "-password"

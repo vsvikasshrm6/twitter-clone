@@ -8,16 +8,17 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 function LoginPage() {
   const queryClient = useQueryClient();
   const {mutate: loginMutation, isError, isPending, error} = useMutation({
-    mutationFn : async ({userName, password})=>{
+    mutationFn : async (formData)=>{
       try {
-        const res = await fetch("/api/login", {
+        const res = await fetch("/api/auth/login", {
           method : "POST",
           headers :{
             "Content-Type" : "application/json"
           },
-          body : JSON.stringify({userName, password})
+          body : JSON.stringify(formData)
         })
         const data = await res.json();
+        
         if(!res.ok){
           throw new Error(error)
         }
@@ -28,7 +29,11 @@ function LoginPage() {
     },
     onSuccess : ()=>{
       queryClient.invalidateQueries({queryKey : ["authUser"]});
+    },
+    onError : (error)=>{
+      console.log(error)
     }
+
       
   })
   const [formData, setFormData] = useState({

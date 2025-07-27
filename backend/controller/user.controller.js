@@ -6,7 +6,7 @@ import { v2 as cloudinary } from "cloudinary";
 export const getUserProfile = async (req, res) => {
   const userName = req.params;
   try {
-    const user = await User.findOne({ userName }).select("-password");
+    const user = await User.findOne(userName).select("-password");
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
@@ -18,27 +18,30 @@ export const getUserProfile = async (req, res) => {
 };
 
 export const followUnfollow = async (req, res) => {
-  const userToFollowId = req.params;
+  const  userToFollowId = req.params.id;
   const myUserId = req.user._id;
   try {
+
     if (myUserId === userToFollowId) {
       res.status(400).json({ message: "Cannot follow yourself" });
     }
     const myUser = await User.findById(myUserId);
     const userToFollow = await User.findById(userToFollowId);
+
     if (myUser.following.includes(userToFollowId)) {
       await User.findByIdAndUpdate(myUserId, {
-        $pull: { following: { userToFollowId } },
+        $pull: { following:  userToFollowId  },
       });
       await User.findByIdAndUpdate(userToFollowId, {
-        $pull: { followers: { userToFollowId } },
+        $pull: { followers:  userToFollowId  },
       });
-    } else {
+    }
+     else {
       await User.findByIdAndUpdate(myUserId, {
-        $push: { following: { userToFollowId } },
+        $push: { following:  userToFollowId  },
       });
       await User.findByIdAndUpdate(userToFollowId, {
-        $push: { followers: { userToFollowId } },
+        $push: { followers:  userToFollowId  },
       });
       await Notification.create({
         to: userToFollowId,
@@ -53,10 +56,11 @@ export const followUnfollow = async (req, res) => {
   }
 };
 
-export const getUserSuggestion = async () => {
+export const getUserSuggestion = async (req, res) => {
   try {
     const userId = req.user._id;
-    const followingUser = await User.findById(userId).select("following");
+    const user = await User.findById(userId).select("-password")
+    const followingUser = user.following;
 
     const users = await User.aggregate([
       {
@@ -70,7 +74,7 @@ export const getUserSuggestion = async () => {
     ]);
 
     const filteredUser = users.filter(
-      (user) => !followingUser.includes(user._id)
+      (user) => {return !followingUser.includes(user._id);}
     );
     const suggestedUser = filteredUser.slice(0, 4);
 

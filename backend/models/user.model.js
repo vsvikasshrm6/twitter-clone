@@ -40,11 +40,11 @@ const UserSchema = mongoose.Schema(
     ],
     link: {
       type: String,
-      required: true,
+      
     },
     bio: {
       type: String,
-      required: true,
+      
     },
     likedPost : [
       {
@@ -54,7 +54,7 @@ const UserSchema = mongoose.Schema(
       }
     ]
   },
-  { timeStamps: true }
+  { timestamps: true }
 );
 
 export const User = mongoose.model("User", UserSchema );

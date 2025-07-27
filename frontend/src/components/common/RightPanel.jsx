@@ -1,5 +1,5 @@
 
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import RightPanelSkeleton from '../skeletons/RightPanelSkeleton';
 import { Link } from "react-router-dom";
 
@@ -9,20 +9,38 @@ const RightPanel = () => {
 		queryKey :["suggestedUser"],
 		queryFn : async ()=>{
 			try {
-			  const res = await fetch("/api/user/suggestedUser", {
+			  const res = await fetch("/api/user/suggestion", {
 					method : "GET"
 				})
 				const data = res.json();
 				if(!res.ok){
 					throw new Error(error);
 				}
+				
 				return data;	
 			} catch (error) {
+				console.log(error)
 				throw new Error(error);
 			}
 		},
 	})
-	if(suggestedUser?.length()==0){
+	const {mutate : followUnfollow, isPending} = useMutation({
+		mutationFn : async (id)=>{
+			
+			const res = await fetch(`/api/user/follow/${id}`, {
+				method : "Post"
+			});
+			if(!res.ok){
+				throw new Error(error);
+			}
+			const data = await res.json();
+			if(data.error){
+				throw new Error(data.error);
+			}
+			return data;
+		}
+	})
+	if(suggestedUser?.length==0){
 		return <div className='md:w-64 w-0'></div>
 	}
 
@@ -43,7 +61,7 @@ const RightPanel = () => {
 					{!isLoading &&
 						suggestedUser?.map((user) => (
 							<Link
-								to={`/profile/${user.username}`}
+								to={`/profile/${user.userName}`}
 								className='flex items-center justify-between gap-4'
 								key={user._id}
 							>
@@ -57,13 +75,15 @@ const RightPanel = () => {
 										<span className='font-semibold tracking-tight truncate w-28'>
 											{user.fullName}
 										</span>
-										<span className='text-sm text-slate-500'>@{user.username}</span>
+										<span className='text-sm text-slate-500'>@{user.userName}</span>
 									</div>
 								</div>
 								<div>
 									<button
 										className='btn bg-white text-black hover:bg-white hover:opacity-90 rounded-full btn-sm'
-										onClick={(e) => e.preventDefault()}
+										onClick={(e) => {e.preventDefault();
+											followUnfollow(user._id)
+										}}
 									>
 										Follow
 									</button>

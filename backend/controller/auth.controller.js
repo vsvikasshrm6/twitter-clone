@@ -5,16 +5,18 @@ import {generateAndSetToken} from "../utils/jwtToken.js"
 export const login = async (req, res)=>{
    const {email, password} = req.body;
    try {
-      const user = await User.find({email : email});
+      const user = await User.findOne({email});
+      
    if(!user){
-      return res.staus(404).json({error : "User Not found"});
+      return res.status(404).json({error : "User Not found"});
    }
    const checkPassword = await bcrypt.compare(password, user.password);
    if(!checkPassword){
       return res.status(400).json({error : "Invalid Password"});
    }
-   await generateAndSetToken(user._id, res);
-   res.status(201).json({message : "Login successfull"});
+   
+    generateAndSetToken(user._id, res);
+   return res.status(201).json({message : "Login successfull"});
    } catch (error) {
       console.log("Error in login" + error);
    }
@@ -52,7 +54,7 @@ export const signup = async (req, res)=>{
          return res.status(400).json({error : "Password length less than 6"})
       }
       const salt = await bcrypt.genSalt(10);
-      const hashPassword = bcrypt.hash(password, salt)
+      const hashPassword = await bcrypt.hash(password, salt)
       const newUser = await User.create({
          userName,
          fullName,
@@ -76,8 +78,14 @@ export const signup = async (req, res)=>{
 export const check = async(req, res)=>{
    try {
       // here no need to again fetch the User as it is already fetched in protectedRoute and it is free from passowrd
-      return res.staus(200).json(req.user)
+      
+      if(!req.user){
+         return res.status(500).json({error : "Error in checking auth"})
+      }
+      return res.status(200).json(req.user)
+
    } catch (error) {
-      console.log("Error in checking auth" + error);
+      return res.status(500).json({error : "Error in checking auth"})
+      
    }
 }

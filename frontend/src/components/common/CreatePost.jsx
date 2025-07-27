@@ -23,18 +23,25 @@ const CreatePost = () => {
             })
             const data = res.json()
             if(!res.ok){
+                
                 throw new Error(error)
             }
             return data;
             } catch (error) {
+                console.log(error)
                 throw new Error(error);
             }
             
         },
         onSuccess : ()=>{
+            setImg("");
+            setText("");
             queryClient.invalidateQueries({queryKey : ["Post"]})
             toast.success("POST created successfully")
         },
+        onError : ()=>{
+            console.log(error)
+        }
         
     })
 

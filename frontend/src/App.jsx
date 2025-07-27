@@ -17,13 +17,15 @@ function App() {
     queryKey:["authUser"],
     queryFn : async ()=>{
       try {
-        const res = await fetch("/api/check", {
+        const res = await fetch("/api/auth/check", {
         method: "GET",
         headers : {
           "Content-Type" : "application/json"
         }
       })
       const data = await res.json();
+      
+      if (data.error) return null;
       if(!res.ok){
         throw new Error(error.message);
       }  
@@ -47,7 +49,7 @@ function App() {
     <Route path='/login' element= {authUser ? <Navigate to="/"></Navigate> :<LoginPage></LoginPage>}></Route>
     <Route path='/signup' element= {authUser ? <Navigate to="/"></Navigate> :<SignupPage></SignupPage>}></Route>
     <Route path='/notification' element= {!authUser ? <Navigate to="/login"></Navigate> :<NotificationPage></NotificationPage>}></Route>
-    <Route path='/profile' element={!authUser ? <Navigate to="/login"></Navigate> : <ProfilePage></ProfilePage>}></Route>
+    <Route path='/profile/:userName' element={!authUser ? <Navigate to="/login"></Navigate> : <ProfilePage></ProfilePage>}></Route>
   </Routes>
   {authUser && <RightPanel></RightPanel>}
   

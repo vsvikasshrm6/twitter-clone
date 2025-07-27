@@ -6,6 +6,7 @@ const postSchema =  mongoose.Schema({
    user : {
     type : mongoose.Types.ObjectId,
     required : true,
+    ref : "User"
    },
    text : {
     type : String,
@@ -32,6 +33,6 @@ const postSchema =  mongoose.Schema({
     }
    ]
 
-}, {timeStamps : true})
+}, {timestamps : true})
 
 export const Post = mongoose.model("Post", postSchema);
