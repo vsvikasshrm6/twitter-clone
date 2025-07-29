@@ -1,12 +1,24 @@
 
 import  PostSkeleton from "../skeletons/PostSkeleton"
 import PostComponent from "../common/PostComponent"
-import {useQuery, useQueryClient } from "@tanstack/react-query";
+import {useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 
-const Posts = ({feedType}) => {
+const Posts = ({feedType, userName, userId}) => {
 	// const isLoading = false;
-	const feedUrl = feedType==="following" ? "/api/post/following" : "/api/post/all";
+	var feedUrl = "";
+	if(feedType==="following"){
+		feedUrl = "/api/post/following"
+	}
+	else if(feedType==="forYou"){
+		feedUrl = "/api/post/all"
+	}
+	else if(feedType==="post"){
+		feedUrl = `/api/post/user/${userName}`
+	}
+	else if(feedType==="likes"){
+		feedUrl = `/api/post/like/${userId}`
+	} 
 	
   
 	const {data: POSTS, isLoading, error, refetch, isRefetching} = useQuery({

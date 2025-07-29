@@ -8,6 +8,8 @@ import { Link } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { QueryClient } from "@tanstack/react-query";
 import { toast } from 'react-hot-toast';
+import LoadingSpinner from './LoadingSpinner';
+import { formattedDateForPost } from "../utils/date";
 
 const PostComponent = ({ post }) => {
 	const queryclient = new QueryClient();
@@ -32,10 +34,14 @@ const PostComponent = ({ post }) => {
 			queryclient.invalidateQueries({queryKey : ["Post"]})
 		}
 	})
-	const {mutate: likeUnlikePost, error: likeUnlikeError} = useMutation({
+	const {mutate: likeUnlikePost, error: likeUnlikeError, isPending : isLiking} = useMutation({
 		mutationFn : async (id)=>{
 			try {
-				const res = await fetch(`/api/post/like/${id}`)
+				const res = await fetch(`/api/post/like/${id}`,
+					{
+						method : "Post"
+					}
+				)
 				if(!res.ok){
 					throw new Error(likeUnlikeError);
 				}
@@ -45,19 +51,66 @@ const PostComponent = ({ post }) => {
 				}
 				return data;
 			} catch (error) {
-				throw new Error(likeUnlikeError);
+				throw new Error(error);
 			}
+		},
+		onSuccess : (updatedLikeList)=>{
+			queryclient.setQueryData(["Post"], (oldData)=>{
+				return oldData.map((oldPost)=>{
+					if(oldPost._id.toString()===post._id){
+						// if not working check syntactical sugar version
+						oldPost.likes = updatedLikeList;
+						return oldPost;
+					}
+					else{
+						return oldPost;
+					}
+
+				})
+			})
+		},
+		onError :(error)=>{
+			toast.error(error.message);
+		}
+	})
+	const {mutate: handleComment, error: commentError, isPending : isCommenting} = useMutation({
+		mutationFn : async (comment)=>{
+			try {
+				const res = await fetch(`/api/post/comment/${post._id}`,
+					{
+						method : "Post",
+						"headers" : "application/json",
+						body : JSON.stringify({text : comment})
+					}
+				)
+				if(!res.ok){
+					throw new Error(commentError);
+				}
+				const data = await res.json();
+				if(data.error){
+					throw new Error(data.error);
+				}
+				return data;
+			} catch (error) {
+				throw new Error(error);
+			}
+		},
+		onSuccess : ()=>{
+			queryclient.invalidateQueries({queryKey : ["Post"]})
+		},
+		onError :(error)=>{
+			toast.error(error.message);
 		}
 	})
 	const [comment, setComment] = useState("");
 	const postOwner = post.user;
-	const isLiked = false;
+	const isLiked = post.likes.includes(authUser._id);
 
 	const isMyPost = authUser.id===post.user._id
 
-	const formattedDate = "1h";
+	const formattedDate = formattedDateForPost(post.createAt);
 
-	const isCommenting = false;
+	// const isCommenting = false;
 
 	const handleDeletePost = () => {
       deletePost();
@@ -65,9 +118,13 @@ const PostComponent = ({ post }) => {
 
 	const handlePostComment = (e) => {
 		e.preventDefault();
+		handleComment();
 	};
 
 	const handleLikePost = (id) => {
+		if(isLiking){
+			return;
+		}
 		likeUnlikePost(id);
 	};
 
@@ -175,10 +232,11 @@ const PostComponent = ({ post }) => {
 								<span className='text-sm text-slate-500 group-hover:text-green-500'>0</span>
 							</div>
 							<div className='flex gap-1 items-center group cursor-pointer' onClick={()=>handleLikePost(post._id)}>
-								{!isLiked && (
+							{isLiking && <LoadingSpinner size="sm"></LoadingSpinner>}
+								{!isLiked && !isLiking && (
 									<FaRegHeart className='w-4 h-4 cursor-pointer text-slate-500 group-hover:text-pink-500' />
 								)}
-								{isLiked && <FaRegHeart className='w-4 h-4 cursor-pointer text-pink-500 ' />}
+								{isLiked && !isLiking && <FaRegHeart className='w-4 h-4 cursor-pointer text-pink-500 ' />}
 
 								<span
 									className={`text-sm text-slate-500 group-hover:text-pink-500 ${

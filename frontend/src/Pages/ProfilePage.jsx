@@ -25,8 +25,8 @@ const ProfilePage = () => {
 	const profileImgRef = useRef(null);
 
 	
-
-	const { data: user, isPending, error, refetch } = useQuery({
+	const {data: authUser} = useQuery({queryKey : ["authUser"]});
+	const { data: user, isLoading, error, refetch } = useQuery({
 		queryKey: ["Profile"],
 		queryFn: async () => {
 			try {
@@ -47,8 +47,8 @@ const ProfilePage = () => {
 
 	})
 
-	const isLoading = false;
-	const isMyProfile = true;
+
+	const isMyProfile = authUser.userName===userName;
 
 
 
@@ -161,12 +161,12 @@ const ProfilePage = () => {
 											<>
 												<FaLink className='w-3 h-3 text-slate-500' />
 												<a
-													href='https://youtube.com/@asaprogrammer_'
+													href={user.link}
 													target='_blank'
 													rel='noreferrer'
 													className='text-sm text-blue-500 hover:underline'
 												>
-													youtube.com/@asaprogrammer_
+													{user.link}
 												</a>
 											</>
 										</div>
@@ -210,7 +210,7 @@ const ProfilePage = () => {
 						</>
 					)}
 
-					<Posts />
+					<Posts feedType={feedType} userName = {userName} userId = {user._id} />
 				</div>
 			</div>
 		</>
