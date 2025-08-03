@@ -8,7 +8,7 @@ postRoutes.post("/create", protectedRoute,createPost);
 postRoutes.delete("/:id",protectedRoute, deletePost);
 postRoutes.post('/like/:id',protectedRoute, likeUnlikePost);
 postRoutes.post('/comment/:id',protectedRoute, commentPost);
-postRoutes.get("like/:id",protectedRoute, getPostLikedByUser);
+postRoutes.get('like/:id',protectedRoute, getPostLikedByUser);
 postRoutes.get('/following',protectedRoute, getFollowingPost);
 postRoutes.get('/user/:username',protectedRoute, getUserPost);
 

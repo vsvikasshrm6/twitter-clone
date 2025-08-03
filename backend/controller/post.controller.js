@@ -1,13 +1,14 @@
 import { Post } from "../models/post.model.js";
 import { User } from "../models/user.model.js";
 import {v2 as cloudinary} from "cloudinary"
+import { Notification } from "../models/notification.model.js";
 
 
 
 export const getAllPost = async (req, res)=>{
   try {
     const post = await Post.find()
-    .sort({created: -1})
+    .sort({createdAt: -1})
     .populate({
       path : "user",
       select : "-password"
@@ -81,24 +82,24 @@ export const deletePost = async ()=>{
 export const likeUnlikePost = async (req, res)=>{
   const {id : postId} = req.params;
   try {
-    const post = await Post.findById(id);
+    const post = await Post.findById(postId);
     if(!post){
       return res.status(404).json({message : "Post not found"})
     }
     if(post.likes.includes(req.user._id)){
        await Post.updateOne({_id : postId}, {
-        likes : {$pull : {User : req.user._id}}
+        $pull : {likes :  req.user._id}
        })
-       await User.updateOne({_id : res.user._id}, {
-        likedPost : {$pull :{Post : postId }}
+       await User.updateOne({_id : req.user._id}, {
+        $pull : { likedPost: postId }
        })
     }
     else{
        await Post.updateOne({_id : postId}, {
-        likes : {$push : {User : req.user._id}}
+        $push : {likes :  req.user._id}
        })
-       await User.updateOne({_id : res.user._id}, {
-        likedPost : {$push :{Post : postId }}
+       await User.updateOne({_id : req.user._id}, {
+        $push : {likedPost :postId }
        })
 
       //  Generate Notification
@@ -128,7 +129,7 @@ export const commentPost = async (req, res)=>{
       return res.status(404).json({error : "Post not found"})
     }
     const updatedPost = await Post.findByIdAndUpdate(id, {
-      comments : {$push : {
+      $push : { comments : {
         text,
         user : req.user._id
       }}
@@ -142,6 +143,7 @@ export const commentPost = async (req, res)=>{
 export const getPostLikedByUser = async (req, res)=>{
   const userId = req.params.id
   try {
+    
     const user = await User.findById(userId);
     if(!user){
       return res.status(404).json({error : "User not found"})

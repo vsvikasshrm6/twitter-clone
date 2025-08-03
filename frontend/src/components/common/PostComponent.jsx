@@ -5,14 +5,14 @@ import { FaRegBookmark } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QueryClient } from "@tanstack/react-query";
 import { toast } from 'react-hot-toast';
 import LoadingSpinner from './LoadingSpinner';
 import { formattedDateForPost } from "../utils/date";
 
 const PostComponent = ({ post }) => {
-	const queryclient = new QueryClient();
+	const queryclient = useQueryClient();
 	const {data:authUser} = useQuery({queryKey: ["authUser"]});
 	const {mutate:deletePost, error} = useMutation({
 		mutationFn : async ()=>{
@@ -35,9 +35,9 @@ const PostComponent = ({ post }) => {
 		}
 	})
 	const {mutate: likeUnlikePost, error: likeUnlikeError, isPending : isLiking} = useMutation({
-		mutationFn : async (id)=>{
+		mutationFn : async ()=>{
 			try {
-				const res = await fetch(`/api/post/like/${id}`,
+				const res = await fetch(`/api/post/like/${post._id}`,
 					{
 						method : "Post"
 					}
@@ -56,6 +56,8 @@ const PostComponent = ({ post }) => {
 		},
 		onSuccess : (updatedLikeList)=>{
 			queryclient.setQueryData(["Post"], (oldData)=>{
+				
+				
 				return oldData.map((oldPost)=>{
 					if(oldPost._id.toString()===post._id){
 						// if not working check syntactical sugar version
@@ -74,28 +76,33 @@ const PostComponent = ({ post }) => {
 		}
 	})
 	const {mutate: handleComment, error: commentError, isPending : isCommenting} = useMutation({
-		mutationFn : async (comment)=>{
+		mutationFn : async ()=>{
 			try {
 				const res = await fetch(`/api/post/comment/${post._id}`,
 					{
-						method : "Post",
-						"headers" : "application/json",
+						method : "POST",
+						headers : {
+							"Content-Type" : "application/json"
+						},
 						body : JSON.stringify({text : comment})
 					}
 				)
 				if(!res.ok){
-					throw new Error(commentError);
+					throw new Error(res);
 				}
 				const data = await res.json();
 				if(data.error){
-					throw new Error(data.error);
+					
+					throw new Error(data);
 				}
 				return data;
 			} catch (error) {
+				
 				throw new Error(error);
 			}
 		},
 		onSuccess : ()=>{
+			setComment("");
 			queryclient.invalidateQueries({queryKey : ["Post"]})
 		},
 		onError :(error)=>{
@@ -125,7 +132,7 @@ const PostComponent = ({ post }) => {
 		if(isLiking){
 			return;
 		}
-		likeUnlikePost(id);
+		likeUnlikePost();
 	};
 
 	return (
@@ -188,15 +195,15 @@ const PostComponent = ({ post }) => {
 												<div className='avatar'>
 													<div className='w-8 rounded-full'>
 														<img
-															src={comment.user.profileImg || "/avatar-placeholder.png"}
+															src={comment.user?.profileImage || "/avatar-placeholder.png"}
 														/>
 													</div>
 												</div>
 												<div className='flex flex-col'>
 													<div className='flex items-center gap-1'>
-														<span className='font-bold'>{comment.user.fullName}</span>
+														<span className='font-bold'>{comment.user?.fullName}</span>
 														<span className='text-gray-700 text-sm'>
-															@{comment.user.username}
+															@{comment.user?.userName}
 														</span>
 													</div>
 													<div className='text-sm'>{comment.text}</div>
@@ -231,7 +238,7 @@ const PostComponent = ({ post }) => {
 								<BiRepost className='w-6 h-6  text-slate-500 group-hover:text-green-500' />
 								<span className='text-sm text-slate-500 group-hover:text-green-500'>0</span>
 							</div>
-							<div className='flex gap-1 items-center group cursor-pointer' onClick={()=>handleLikePost(post._id)}>
+							<div className='flex gap-1 items-center group cursor-pointer' onClick={()=>handleLikePost()}>
 							{isLiking && <LoadingSpinner size="sm"></LoadingSpinner>}
 								{!isLiked && !isLiking && (
 									<FaRegHeart className='w-4 h-4 cursor-pointer text-slate-500 group-hover:text-pink-500' />
