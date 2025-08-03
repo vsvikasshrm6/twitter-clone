@@ -42,7 +42,7 @@ export const signup = async (req, res)=>{
 		}
       //check email is valid or not
       const user = await User.findOne({email : email})
-      console.log(user)
+      
       if(user){
          return res.status(400).json({error : "User alredy exist"})
       }

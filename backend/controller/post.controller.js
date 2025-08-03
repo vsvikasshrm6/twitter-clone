@@ -148,8 +148,8 @@ export const getPostLikedByUser = async (req, res)=>{
     if(!user){
       return res.status(404).json({error : "User not found"})
     }
-    const post = await Post.find({_id : {$in : user.likedPosts}}).populate({
-      path : "User",
+    const post = await Post.find({_id : {$in : user.likedPost}}).populate({
+      path : "user",
       select : "-password"
     }).
     populate({
@@ -186,17 +186,18 @@ export const getFollowingPost = async(req,res)=>{
   }
 }
 export const getUserPost = async (req, res) =>{
-  const username = req.params;
+  const userName = req.params;
   try {
-    const user = await User.find({username : username});
+    
+    const user = await User.findOne(userName);
     if(!user){
-      return res.status(400).json({message : "Invalid User Request"})
+      return res.status(400).json({error : "Invalid User Request"})
     }
     const userPost = await Post.find({user : user._id}).sort({createdAt : -1}).populate({
       path : "user",
       select: "-password"
     }).populate({
-      path : "user.comments",
+      path : "comments.user",
       select : "-password"
     })
     res.status(200).json(userPost);

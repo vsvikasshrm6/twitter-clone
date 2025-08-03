@@ -14,6 +14,7 @@ import { MdEdit } from "react-icons/md";
 import ProfileHeaderSkeleton from "../components/skeletons/ProfileHeaderSkeleton"
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
+import LoadingSpinner from "../components/common/LoadingSpinner";
 
 const ProfilePage = () => {
 	const { userName } = useParams();
@@ -26,7 +27,7 @@ const ProfilePage = () => {
 
 	
 	const {data: authUser} = useQuery({queryKey : ["authUser"]});
-	const { data: user, isLoading, error, refetch } = useQuery({
+	const { data: user, isLoading, error, refetch, isRefetching } = useQuery({
 		queryKey: ["Profile"],
 		queryFn: async () => {
 			try {
@@ -34,6 +35,7 @@ const ProfilePage = () => {
 				if (!res.ok) {
 					throw new Error(error);
 				}
+				
 				const data = await res.json();
 				if (data.error) {
 					throw new Error(error);
@@ -50,7 +52,7 @@ const ProfilePage = () => {
 
 	const isMyProfile = authUser.userName===userName;
 
-
+	
 
 	const handleImgChange = (e, state) => {
 		const file = e.target.files[0];
@@ -71,10 +73,10 @@ const ProfilePage = () => {
 		<>
 			<div className='flex-[4_4_0]  border-r border-gray-700 min-h-screen '>
 				{/* HEADER */}
-				{isLoading && <ProfileHeaderSkeleton />}
+				{isLoading || isRefetching && <ProfileHeaderSkeleton />}
 				{!isLoading && !user && <p className='text-center text-lg mt-4'>User not found</p>}
 				<div className='flex flex-col'>
-					{!isLoading && user && (
+					{!isLoading && !isRefetching && user && (
 						<>
 							<div className='flex gap-10 px-4 py-2 items-center'>
 								<Link to='/'>
@@ -210,7 +212,7 @@ const ProfilePage = () => {
 						</>
 					)}
 
-					<Posts feedType={feedType} userName = {userName} userId = {user._id} />
+					{isLoading ? <LoadingSpinner></LoadingSpinner> :  <Posts feedType={feedType} userName = {userName} userId = {user._id} />}
 				</div>
 			</div>
 		</>
