@@ -12,8 +12,9 @@ import path from "path";
 dotenv.config();
 
 const app = express();
-const __dirname = path.resolve();
 const PORT = process.env.PORT || 5000;
+const __dirname = path.resolve();
+
 
 
 app.use(express.json({limit: '50mb'}));
@@ -32,7 +33,7 @@ if(process.env.NODE_ENV==="production"){
     
     app.use(express.static(path.join(__dirname , "frontend/dist")));
 
-    app.get('*', (req, res)=>{
+    app.get(/(.*)/, (req, res)=>{
         console.log("hitting production")
         res.sendFile(path.resolve(__dirname, "frontend/dist", "index.html"))
     })
