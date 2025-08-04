@@ -15,6 +15,7 @@ import ProfileHeaderSkeleton from "../components/skeletons/ProfileHeaderSkeleton
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import LoadingSpinner from "../components/common/LoadingSpinner";
+import useUpdateProfile from "../customHooks/useUpdateProfile";
 
 const ProfilePage = () => {
 	const { userName } = useParams();
@@ -25,7 +26,7 @@ const ProfilePage = () => {
 	const coverImgRef = useRef(null);
 	const profileImgRef = useRef(null);
 
-	
+	const {updateProfile, isPending : updateProfilePending} = useUpdateProfile();
 	const {data: authUser} = useQuery({queryKey : ["authUser"]});
 	const { data: user, isLoading, error, refetch, isRefetching } = useQuery({
 		queryKey: ["Profile"],
@@ -63,6 +64,8 @@ const ProfilePage = () => {
 				state === "profileImg" && setProfileImg(reader.result);
 			};
 			reader.readAsDataURL(file);
+			
+			
 		}
 	};
 	useEffect(() => {
@@ -143,9 +146,13 @@ const ProfilePage = () => {
 								{(coverImg || profileImg) && (
 									<button
 										className='btn btn-primary rounded-full btn-sm text-white px-4 ml-2'
-										onClick={() => alert("Profile updated successfully")}
+										onClick={async() =>{
+											updateProfile({coverImage : coverImg, profileImage : profileImg});
+											setCoverImg("");
+											setProfileImg('');
+										} }
 									>
-										Update
+										{updateProfilePending ?  "Update" : "Updating..."}
 									</button>
 								)}
 							</div>
