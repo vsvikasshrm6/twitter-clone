@@ -152,7 +152,7 @@ const ProfilePage = () => {
 											setProfileImg('');
 										} }
 									>
-										{updateProfilePending ?  "Update" : "Updating..."}
+										{updateProfilePending ?  "Updating..." : "Update"}
 									</button>
 								)}
 							</div>
