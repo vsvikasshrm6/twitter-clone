@@ -26,6 +26,7 @@ const useUpdateProfile = () => {
     onSuccess: () => {
       toast.success("Profile updated successfully");
       queryClient.invalidateQueries({queryKey : ["Profile"]})
+      queryClient.invalidateQueries({queryKey : ["authUser"]})
     },
   });
   return {updateProfile, isPending}

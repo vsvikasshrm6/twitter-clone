@@ -124,6 +124,7 @@ export const updateProfile = async (req, res) => {
     user.userName = userName || user.userName;
     user.link = link || user.link;
     user.bio = bio || user.bio;
+    
     if (profileImage) {
       if (user.profileImage) {
         await cloudinary.uploader.destroy(
