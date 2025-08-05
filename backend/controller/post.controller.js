@@ -30,18 +30,20 @@ export const getAllPost = async (req, res)=>{
 export const createPost = async (req, res)=>{
   const {image, text} = req.body;
   try {
+    
     const creatorId = req.user._id;
     const user = User.findById(creatorId).select("-password");
     if(!user){
-      return res.status(400).json({message : "Unauthorised request"});
+      return res.status(400).json({error : "Unauthorised request"});
     }
     if(!image && !text){
-      return res.status(400).json({message : "Please provide either image or text"})
+      return res.status(400).json({error : "Please provide either image or text"})
     }
-    var postedImageUrl= ""
+    let postedImageUrl= ""
     if(image){
       const postedImage = await cloudinary.uploader.upload(image);
-     postedImageUrl = postedImage.secureUrl;
+      
+     postedImageUrl = postedImage.secure_url;
     }
     
 
@@ -55,7 +57,7 @@ export const createPost = async (req, res)=>{
 
   } catch (error) {
     console.log("Error in creating post" + error);
-    res.status(500).json({message : "Internal server error"})
+    res.status(500).json({error : "Internal server error"})
   }
 }
 export const deletePost = async ()=>{

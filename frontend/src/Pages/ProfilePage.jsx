@@ -5,7 +5,7 @@ import Posts from "../components/common/Posts";
 
 import EditProfileModal from "../components/common/EditProfileModal";
 
-import { POSTS } from "../components/utils/db/dummy";
+
 
 import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
@@ -16,6 +16,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import useUpdateProfile from "../customHooks/useUpdateProfile";
+import {formatMemberSinceDate} from "../components/utils/date"
 
 const ProfilePage = () => {
 	const { userName } = useParams();
@@ -49,10 +50,10 @@ const ProfilePage = () => {
 		}
 
 	})
-
+	const {data:POSTS} = useQuery({queryKey : ["Post"]})
 
 	const isMyProfile = authUser.userName===userName;
-
+	
 	
 
 	const handleImgChange = (e, state) => {
@@ -93,7 +94,7 @@ const ProfilePage = () => {
 							{/* COVER IMG */}
 							<div className='relative group/cover'>
 								<img
-									src={coverImg || user?.coverImg || "/cover.png"}
+									src={coverImg || user?.coverImage || "/cover.png"}
 									className='h-52 w-full object-cover'
 									alt='cover image'
 								/>
@@ -121,7 +122,7 @@ const ProfilePage = () => {
 								{/* USER AVATAR */}
 								<div className='avatar absolute -bottom-16 left-4'>
 									<div className='w-32 rounded-full relative group/avatar'>
-										<img src={profileImg || user?.profileImg || "/avatar-placeholder.png"} />
+										<img src={profileImg || user?.profileImage || "/avatar-placeholder.png"} />
 										<div className='absolute top-5 right-3 p-1 bg-primary rounded-full group-hover/avatar:opacity-100 opacity-0 cursor-pointer'>
 											{isMyProfile && (
 												<MdEdit
@@ -182,7 +183,7 @@ const ProfilePage = () => {
 									)}
 									<div className='flex gap-2 items-center'>
 										<IoCalendarOutline className='w-4 h-4 text-slate-500' />
-										<span className='text-sm text-slate-500'>Joined {user.createdAt}</span>
+										<span className='text-sm text-slate-500'>Joined {formatMemberSinceDate(user.createdAt)}</span>
 									</div>
 								</div>
 								<div className='flex gap-2'>

@@ -1,14 +1,14 @@
 import { Notification } from "../models/notification.model.js";
 import { User } from "../models/user.model.js";
-import  bcrypt  from "bcryptjs";
+import bcrypt from "bcryptjs";
 import { v2 as cloudinary } from "cloudinary";
 
 export const getUserProfile = async (req, res) => {
   const userName = req.params;
   try {
-    
+
     const user = await User.findOne(userName).select("-password");
-    
+
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
@@ -20,7 +20,7 @@ export const getUserProfile = async (req, res) => {
 };
 
 export const followUnfollow = async (req, res) => {
-  const  userToFollowId = req.params.id;
+  const userToFollowId = req.params.id;
   const myUserId = req.user._id;
   try {
 
@@ -32,18 +32,18 @@ export const followUnfollow = async (req, res) => {
 
     if (myUser.following.includes(userToFollowId)) {
       await User.findByIdAndUpdate(myUserId, {
-        $pull: { following:  userToFollowId  },
+        $pull: { following: userToFollowId },
       });
       await User.findByIdAndUpdate(userToFollowId, {
-        $pull: { followers:  userToFollowId  },
+        $pull: { followers: userToFollowId },
       });
     }
-     else {
+    else {
       await User.findByIdAndUpdate(myUserId, {
-        $push: { following:  userToFollowId  },
+        $push: { following: userToFollowId },
       });
       await User.findByIdAndUpdate(userToFollowId, {
-        $push: { followers:  userToFollowId  },
+        $push: { followers: userToFollowId },
       });
       await Notification.create({
         to: userToFollowId,
@@ -76,7 +76,7 @@ export const getUserSuggestion = async (req, res) => {
     ]);
 
     const filteredUser = users.filter(
-      (user) => {return !followingUser.includes(user._id);}
+      (user) => { return !followingUser.includes(user._id); }
     );
     const suggestedUser = filteredUser.slice(0, 4);
 
@@ -114,12 +114,15 @@ export const updateProfile = async (req, res) => {
         .status(404)
         .json({ message: "Provide new and current pasword" });
     }
-    const isOldPasswordCorrect = await bcrypt.compare(currentPassword, user.password);
-    if (isOldPasswordCorrect) {
-      const salt = await bcrypt.genSalt(10);
-      const hashedNewPassword = await bcrypt.hash(newPassword, salt);
-      user.password = hashedNewPassword;
+    if (currentPassword && user.password) {
+      const isOldPasswordCorrect = await bcrypt.compare(currentPassword, user.password);
+      if (isOldPasswordCorrect) {
+        const salt = await bcrypt.genSalt(10);
+        const hashedNewPassword = await bcrypt.hash(newPassword, salt);
+        user.password = hashedNewPassword;
+      }
     }
+
     user.fullName = fullName || user.fullName;
     user.userName = userName || user.userName;
     user.link = link || user.link;

@@ -12,7 +12,7 @@ export const getNotification = async ()=>{
         const notification = await Notification.findMany({to : user._id}).populate(
             {
                 path : "from",
-                select : "userName profileImg"
+                select : "userName profileImage"
             }
         );
         await Notification.updateMany({to : userId}, {read : true});
