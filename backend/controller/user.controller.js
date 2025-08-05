@@ -102,7 +102,7 @@ export const updateProfile = async (req, res) => {
     coverImage,
   } = req.body;
   try {
-    const user = await User.findById(req.user._id);
+    let user = await User.findById(req.user._id);
     if (!user) {
       return res.status(400).json({ message: "User Not found" });
     }
@@ -114,7 +114,7 @@ export const updateProfile = async (req, res) => {
         .status(404)
         .json({ message: "Provide new and current pasword" });
     }
-    const isOldPasswordCorrect = bcrypt.compare(currentPassword, user.password);
+    const isOldPasswordCorrect = await bcrypt.compare(currentPassword, user.password);
     if (isOldPasswordCorrect) {
       const salt = await bcrypt.genSalt(10);
       const hashedNewPassword = await bcrypt.hash(newPassword, salt);
@@ -124,7 +124,7 @@ export const updateProfile = async (req, res) => {
     user.userName = userName || user.userName;
     user.link = link || user.link;
     user.bio = bio || user.bio;
-    
+
     if (profileImage) {
       if (user.profileImage) {
         await cloudinary.uploader.destroy(
@@ -145,7 +145,7 @@ export const updateProfile = async (req, res) => {
     }
     user = await user.save();
     user.password = null;
-    return res.status(200).json({ message: "Profile updated successfully" });
+    return res.status(200).json(user);
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Internal server error" });

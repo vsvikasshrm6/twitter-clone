@@ -50,9 +50,9 @@ const CreatePost = () => {
 
 
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async(e) => {
         e.preventDefault();
-        createPost();
+        await createPost();
         
     };
     const handleImageUpload = (e) => {
