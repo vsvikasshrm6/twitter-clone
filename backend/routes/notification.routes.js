@@ -1,4 +1,4 @@
-import {express} from "express"
+import express from "express"
 import {protectedRoute} from "../middleware/protectedRoute.js"
 
 const notificationRouter = express.Router();
