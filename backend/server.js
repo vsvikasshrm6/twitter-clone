@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser';
 import cors from "cors";
 import path from "path";
 import { v2 as cloudinary } from 'cloudinary'
+import notificationRouter from "./routes/notification.routes.js";
 
 dotenv.config();
 
@@ -35,6 +36,7 @@ app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRouter);
 app.use("/api/post", postRoutes);
+app.use("/api/notification", notificationRouter)
 
 console.log(process.env.NODE_ENV)
 
