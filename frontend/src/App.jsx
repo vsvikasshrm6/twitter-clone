@@ -38,9 +38,9 @@ function App() {
     },
     retry: false
   })
-   {isLoading && <div className='h-screen flex justify-center items-center'>
+   if(isLoading)return (<div className='h-screen flex justify-center items-center'>
     <LoadingSpinner size='lg'></LoadingSpinner>
-   </div>}
+   </div>)
   return (<div className='flex' data-theme = "black">
     <Toaster/>
     {authUser && <SideBar></SideBar>}
